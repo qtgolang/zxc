@@ -77,7 +77,7 @@ func (proxy *Proxy) ServerHandler(rw http.ResponseWriter, req *http.Request) {
 
 		go proxy.handleHTTPS(clientConn, req)
 	default: // todo websocket
-		go proxy.handleHTTP(clientConn, req)
+		proxy.handleHTTP(clientConn, req)
 	}
 }
 
