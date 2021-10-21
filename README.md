@@ -7,20 +7,22 @@ package main
 
 import (
 	"fmt"
-	"github.com/qtgolang/zzh"
+	"github.com/qtgolang/zxc"
 )
 type Handler struct {
 }
 
-func (handler *Handler) BeforeRequest(entity *entity.Entity) {
-	entity.Request.Header.Set("Accept-Encoding", "") //设置Head
+// 请求前
+func (handler *Handler) BeforeRequest(entity *zxc.Entity) {
+	entity.Request.Header.Set("Accept-Encoding", "")
 
 	Mod := entity.Request.Method
 	Host := entity.Request.Host
 	Path := entity.Request.RequestURI
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(entity.GetRequestBody())
-	Body := buf.String() 
+	Body := buf.String()
+
 	fmt.Println("请求 Mod", Mod)
 	fmt.Println("请求 Host", Host)
 	fmt.Println("请求 Path", Path)
@@ -28,7 +30,9 @@ func (handler *Handler) BeforeRequest(entity *entity.Entity) {
 	fmt.Println("请求 Body", Body) 
 
 }
-func (handler *Handler) BeforeResponse(entity *entity.Entity, err error) {
+
+//请求后
+func (handler *Handler) BeforeResponse(entity *zxc.Entity, err error) {
 	Mod := entity.Request.Method
 	Host := entity.Request.Host
 	Path := entity.Request.RequestURI
@@ -45,7 +49,7 @@ func (handler *Handler) BeforeResponse(entity *entity.Entity, err error) {
 func (handler *Handler) ErrorLog(err error) {}
 
 func main() {
-	amiddleman.Stat(8080,&Handler{},amiddleman.RootCa,amiddleman.RootKey)
+	zxc.Stat(port, &Handler{}, zxc.RootCa, zxc.RootKey)
 }
  ```
  
