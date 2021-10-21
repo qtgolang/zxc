@@ -1,53 +1,8 @@
-package amiddleman
+package zzh
 
-import (
-	"bytes"
-	"fmt"
-	"net/http"
-	"strconv"
-	"time"
-)
-
-type Handler struct {
-}
-
-func (handler *Handler) BeforeRequest(entity *Entity) {
-	entity.Request.Header.Set("Accept-Encoding", "")
-
-	Mod := entity.Request.Method
-	Host := entity.Request.Host
-	Path := entity.Request.RequestURI
-	buf := new(bytes.Buffer)
-	buf.ReadFrom(entity.GetRequestBody())
-	Body := buf.String()
-
-	fmt.Println("请求 Mod", Mod)
-	fmt.Println("请求 Host", Host)
-	fmt.Println("请求 Path", Path)
-	fmt.Println("请求 Body len", len(Body))
-	fmt.Println("请求 Body", Body)
-
-	//qt.Call(callback, Mod, Host, Path, Body, len(Body))
-
-}
-func (handler *Handler) BeforeResponse(entity *Entity, err error) {
-	Mod := entity.Request.Method
-	Host := entity.Request.Host
-	Path := entity.Request.RequestURI
-	buf := new(bytes.Buffer)
-	buf.ReadFrom(entity.GetResponseBody())
-	Body := buf.String()
-
-	fmt.Println("Ret Mod", Mod)
-	fmt.Println("Ret Host", Host)
-	fmt.Println("Ret Path", Path)
-	fmt.Println("Ret Body len", len(Body))
-	fmt.Println("Ret Body", Body)
-	//go qt.Call(callback, Mod, Host, Path, Body, len(Body))
-}
-func (handler *Handler) ErrorLog(err error) {}
-
-var RootCa = `-----BEGIN CERTIFICATE-----
+const (
+	
+ RootCa = `-----BEGIN CERTIFICATE-----
 MIIDizCCAnOgAwIBAgIUKZuAsiiXCMz613rrURfxAHNuU7YwDQYJKoZIhvcNAQEL
 BQAwVDELMAkGA1UEBhMCQ04xCzAJBgNVBAgMAkJKMQswCQYDVQQHDAJCSjENMAsG
 A1UECgwEbGl2ZTENMAsGA1UECwwEUk9PVDENMAsGA1UEAwwEUk9PVDAgFw0yMTEw
@@ -69,7 +24,7 @@ jflL/BPXbo2I6AUSIZBYP+sjlDugttxtm7dao61fiMREkd5sgFhFi1b7HAETESKs
 YuUTLN7fP7MUIOy+1cf+uX8STUTUz5tmu4eH6NiG4+HVdQHWQ0fI/3RoZmvghOg=
 -----END CERTIFICATE-----
 `
-var RootKey = `-----BEGIN RSA PRIVATE KEY-----
+ RootKey = `-----BEGIN RSA PRIVATE KEY-----
 MIIEpAIBAAKCAQEAwj4JNBKIWV7DSLkivQ5zMOe5ycdsKgIRvmbfHdXIf4oUA91z
 wOW2QROVKW8ptxwLcbhObwhDSU30akV6mpt3/7Tq+GJmD41TXSGhcU/umTcvCesF
 cUdIcA33TL/tEQ/XA9F0NSCUjpYkq8RqKVld02ByH4dM1cOVukArK2pF7ab+l3Op
@@ -98,23 +53,4 @@ EkvK5BlNCpvFCO8TKImcB/g4v8R7FNxmM4tUE1HJzSym4jbiaWtf8w==
 -----END RSA PRIVATE KEY-----
 `
 
-func testmain() {
-	//使用默认的CA 证书 客户端需要手动把ca 证书安装到信任的证书列表
-	Stat(8899, &Handler{}, RootCa, RootKey)
-}
-
-func Stat(prot int, delegate Delegate, certCa, certKey string) {
-	proxy := NewWithDelegate(delegate, certCa, certKey)
-	server := &http.Server{
-		Addr: ":" + strconv.Itoa(prot),
-		Handler: http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-			proxy.ServerHandler(rw, req)
-		}),
-		ReadTimeout:  30 * time.Second,
-		WriteTimeout: 30 * time.Second,
-	}
-	err := server.ListenAndServe()
-	if err != nil {
-		fmt.Println(err)
-	}
-}
+)

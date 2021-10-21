@@ -1,4 +1,4 @@
-package amiddleman
+package zzh
 
 type Delegate interface {
 	BeforeRequest(entity *Entity)
