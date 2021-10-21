@@ -1,4 +1,4 @@
-module github.com/qtgolang/zzh
+module github.com/qtgolang/zxc
 
 go 1.16
 
