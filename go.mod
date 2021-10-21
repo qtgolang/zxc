@@ -1,5 +1,5 @@
-module zzh
+module github.com/qtgolang/zzh
 
-go 1.14
+go 1.16
 
 require github.com/pkg/errors v0.9.1
