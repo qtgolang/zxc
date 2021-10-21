@@ -1,9 +1,6 @@
 package amiddleman
 
 import (
-	"amiddleman/cert"
-	"amiddleman/conn"
-	"amiddleman/entity"
 	"context"
 	"crypto/tls"
 	"flag"
@@ -41,7 +38,7 @@ type Proxy struct {
 func init() {
 	flag.Parse()
 	if *serverCertFlag { // 安装服务端证书
-		if err := cert.AddTrustedCert(); err != nil {
+		if err := AddTrustedCert(); err != nil {
 			panic(err)
 		}
 		fmt.Println("证书安装成功")
@@ -52,7 +49,7 @@ func New() *Proxy {
 }
 
 func NewWithDelegate(delegate Delegate, rootCa, rootKey string) *Proxy {
-	cert.Init(rootCa, rootKey)
+	Init(rootCa, rootKey)
 	return &Proxy{delegate: delegate, dns: &DefaultDns}
 }
 
@@ -64,11 +61,11 @@ func (proxy *Proxy) ServerHandler(rw http.ResponseWriter, req *http.Request) {
 	if req.URL.Hostname() == proxy.dns.SslCertHost && req.URL.Path == "/ssl" { // 安装移动端证书
 		rw.Header().Add("Connection", "close")
 		rw.Header().Add("Content-Type", "application/x-x509-ca-cert")
-		rw.Write(cert.GetCaCert())
+		rw.Write(GetCaCert())
 		return
 	}
 
-	clientConn, err := conn.HijackerConn(rw)
+	clientConn, err := HijackerConn(rw)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusInternalServerError)
 		return
@@ -84,9 +81,9 @@ func (proxy *Proxy) ServerHandler(rw http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func (proxy *Proxy) handleHTTPS(clientConn *conn.Connection, req *http.Request) {
+func (proxy *Proxy) handleHTTPS(clientConn *Connection, req *http.Request) {
 	defer clientConn.Close()
-	certificate, err := cert.GetCertificate(req.URL.Host)
+	certificate, err := GetCertificate(req.URL.Host)
 	if err != nil {
 		proxy.Error(clientConn, err)
 		return
@@ -101,7 +98,7 @@ func (proxy *Proxy) handleHTTPS(clientConn *conn.Connection, req *http.Request) 
 	_ = tlsConn.SetDeadline(time.Now().Add(30 * time.Second))
 	defer tlsConn.Close()
 
-	proxyEntity, err := entity.NewEntity(tlsConn)
+	proxyEntity, err := NewEntity(tlsConn)
 	if err != nil {
 		proxy.Error(tlsConn, err)
 		return
@@ -129,10 +126,10 @@ func (proxy *Proxy) handleHTTPS(clientConn *conn.Connection, req *http.Request) 
 	_ = resp.Write(tlsConn)
 }
 
-func (proxy *Proxy) handleHTTP(clientConn *conn.Connection, req *http.Request) {
+func (proxy *Proxy) handleHTTP(clientConn *Connection, req *http.Request) {
 	defer clientConn.Close()
 
-	proxyEntity, err := entity.NewEntityWithRequest(req)
+	proxyEntity, err := NewEntityWithRequest(req)
 	if err != nil {
 		proxy.Error(clientConn, err)
 		return
@@ -157,7 +154,7 @@ func (proxy *Proxy) handleHTTP(clientConn *conn.Connection, req *http.Request) {
 }
 
 // 请求目标服务器
-func (proxy *Proxy) doRequest(entity *entity.Entity) (*http.Response, error) {
+func (proxy *Proxy) doRequest(entity *Entity) (*http.Response, error) {
 	removeHopHeader(entity.Request.Header)
 
 	dialer := &net.Dialer{

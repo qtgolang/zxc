@@ -1,19 +1,18 @@
-package cache
+package amiddleman
 
 import (
 	"crypto/tls"
-	"amiddleman/singleflight"
 	"sync"
 )
 
 type Cache struct {
 	m           sync.Map
-	singleGroup *singleflight.Group
+	singleGroup *Group
 }
 
 func NewCache() *Cache {
 	return &Cache{
-		singleGroup: &singleflight.Group{},
+		singleGroup: &Group{},
 	}
 }
 

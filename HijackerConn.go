@@ -1,4 +1,4 @@
-package conn
+package amiddleman
 
 import (
 	"net"

@@ -1,4 +1,4 @@
-package entity
+package amiddleman
 
 import (
 	"bufio"

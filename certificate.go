@@ -1,7 +1,6 @@
-package cert
+package amiddleman
 
 import (
-	"amiddleman/cache"
 	"bytes"
 	"crypto/rand"
 	"crypto/rsa"
@@ -24,14 +23,14 @@ var (
 	rootKey *rsa.PrivateKey   // 证书私钥
 )
 
-var certCache *cache.Cache
-var RootKey []byte
-var RootCa []byte
+var certCache *Cache
+var root_Key []byte
+var root_Ca []byte
 
 func Init(rootCa, rootKey string) {
-	RootCa = []byte(rootCa)
-	RootKey = []byte(rootKey)
-	certCache = cache.NewCache()
+	root_Ca = []byte(rootCa)
+	root_Key = []byte(rootKey)
+	certCache = NewCache()
 	if err := loadRootCa(); err != nil {
 		panic(err)
 	}
@@ -110,7 +109,7 @@ func generateKeyPair() (*rsa.PrivateKey, error) {
 
 // 加载根证书
 func loadRootCa() error {
-	p, _ := pem.Decode(RootCa)
+	p, _ := pem.Decode(root_Ca)
 	var err error
 	rootCa, err = x509.ParseCertificate(p.Bytes)
 	if err != nil {
@@ -122,7 +121,7 @@ func loadRootCa() error {
 
 // 加载根Private Key
 func loadRootKey() error {
-	p, _ := pem.Decode(RootKey)
+	p, _ := pem.Decode(root_Key)
 	var err error
 	rootKey, err = x509.ParsePKCS1PrivateKey(p.Bytes)
 	if err != nil {
@@ -134,7 +133,7 @@ func loadRootKey() error {
 
 // 获取证书原内容
 func GetCaCert() []byte {
-	return RootCa
+	return root_Ca
 }
 
 // 添加信任跟证书至钥匙串
@@ -152,7 +151,7 @@ func AddTrustedCert() error {
 	defer os.Remove(fileName)
 	defer file.Close()
 
-	file.Write(RootCa)
+	file.Write(root_Ca)
 
 	var command string
 	switch runtime.GOOS {

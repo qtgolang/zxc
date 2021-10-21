@@ -1,7 +1,6 @@
 package amiddleman
 
 import (
-	"amiddleman/entity"
 	"bytes"
 	"fmt"
 	"net/http"
@@ -12,7 +11,7 @@ import (
 type Handler struct {
 }
 
-func (handler *Handler) BeforeRequest(entity *entity.Entity) {
+func (handler *Handler) BeforeRequest(entity *Entity) {
 	entity.Request.Header.Set("Accept-Encoding", "")
 
 	Mod := entity.Request.Method
@@ -31,7 +30,7 @@ func (handler *Handler) BeforeRequest(entity *entity.Entity) {
 	//qt.Call(callback, Mod, Host, Path, Body, len(Body))
 
 }
-func (handler *Handler) BeforeResponse(entity *entity.Entity, err error) {
+func (handler *Handler) BeforeResponse(entity *Entity, err error) {
 	Mod := entity.Request.Method
 	Host := entity.Request.Host
 	Path := entity.Request.RequestURI

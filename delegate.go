@@ -1,10 +1,8 @@
 package amiddleman
 
-import "amiddleman/entity"
-
 type Delegate interface {
-	BeforeRequest(entity *entity.Entity)
-	BeforeResponse(entity *entity.Entity, err error)
+	BeforeRequest(entity *Entity)
+	BeforeResponse(entity *Entity, err error)
 	ErrorLog(err error)
 }
 
@@ -15,6 +13,6 @@ type DefaultDelegate struct {
 	Delegate
 }
 
-func (delegate *DefaultDelegate) BeforeRequest(entity *entity.Entity)             {}
-func (delegate *DefaultDelegate) BeforeResponse(entity *entity.Entity, err error) {}
-func (delegate *DefaultDelegate) ErrorLog(err error)                              {}
+func (delegate *DefaultDelegate) BeforeRequest(entity *Entity)             {}
+func (delegate *DefaultDelegate) BeforeResponse(entity *Entity, err error) {}
+func (delegate *DefaultDelegate) ErrorLog(err error)                       {}
