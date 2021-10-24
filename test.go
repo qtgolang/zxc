@@ -52,9 +52,30 @@ func testmain() {
 	Stat(8899, &Handler{}, RootCa, RootKey)
 }
 
+var IsRun = false //运行状态
+var RunErr error  //运行错误信息
+var Server *http.Server
+
+// Stat
+//
+// 启动.可以指定CA 证书 如果留空 则使用默认的证书
+//
+// prot 端口号
+//
+// certCa crt证书
+//
+// certKey 证书Key
 func Stat(prot int, delegate Delegate, certCa, certKey string) {
-	proxy := NewWithDelegate(delegate, certCa, certKey)
-	server := &http.Server{
+	var certCa_ = certCa
+	var certKey_ = certKey
+	if certCa_ == "" {
+		certCa_ = RootCa
+	}
+	if certKey_ == "" {
+		certKey_ = RootKey
+	}
+	proxy := NewWithDelegate(delegate, certCa_, certKey_)
+	Server = &http.Server{
 		Addr: ":" + strconv.Itoa(prot),
 		Handler: http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 			proxy.ServerHandler(rw, req)
@@ -62,8 +83,14 @@ func Stat(prot int, delegate Delegate, certCa, certKey string) {
 		ReadTimeout:  30 * time.Second,
 		WriteTimeout: 30 * time.Second,
 	}
-	err := server.ListenAndServe()
-	if err != nil {
-		fmt.Println(err)
-	}
+	IsRun = true
+	RunErr = Server.ListenAndServe()
+	IsRun = false
+}
+
+//Stop
+//
+//停止运行.
+func Stop() {
+	RunErr = Server.Close()
 }
