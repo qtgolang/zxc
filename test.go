@@ -80,8 +80,8 @@ func Stat(prot int, delegate Delegate, certCa, certKey string) {
 		Handler: http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 			proxy.ServerHandler(rw, req)
 		}),
-		ReadTimeout:  30 * time.Second,
-		WriteTimeout: 30 * time.Second,
+		ReadTimeout:  60 * time.Second,
+		WriteTimeout: 60 * time.Second,
 	}
 	IsRun = true
 	RunErr = Server.ListenAndServe()

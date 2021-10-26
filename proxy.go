@@ -3,7 +3,6 @@ package zxc
 import (
 	"context"
 	"crypto/tls"
-	"flag"
 	"fmt"
 	"github.com/pkg/errors"
 	"net"
@@ -28,22 +27,11 @@ var (
 	}
 )
 
-var serverCertFlag = flag.Bool("cert", false, "安装server证书,默认不安装")
-
 type Proxy struct {
 	delegate Delegate
 	dns      *Dns
 }
 
-func init() {
-	flag.Parse()
-	if *serverCertFlag { // 安装服务端证书
-		if err := AddTrustedCert(); err != nil {
-			panic(err)
-		}
-		fmt.Println("证书安装成功")
-	}
-}
 func New() *Proxy {
 	return &Proxy{delegate: &DefaultDelegate{}, dns: &DefaultDns}
 }
@@ -95,7 +83,7 @@ func (proxy *Proxy) handleHTTPS(clientConn *Connection, req *http.Request) {
 		return
 	}
 
-	_ = tlsConn.SetDeadline(time.Now().Add(30 * time.Second))
+	_ = tlsConn.SetDeadline(time.Now().Add(60 * time.Second))
 	defer tlsConn.Close()
 
 	proxyEntity, err := NewEntity(tlsConn)
@@ -158,12 +146,12 @@ func (proxy *Proxy) doRequest(entity *Entity) (*http.Response, error) {
 	removeHopHeader(entity.Request.Header)
 
 	dialer := &net.Dialer{
-		Timeout:  5 * time.Second,
-		Deadline: time.Now().Add(30 * time.Second),
+		Timeout:  60 * time.Second,
+		Deadline: time.Now().Add(60 * time.Second),
 	}
 	resp, err := (&http.Transport{
 		DisableKeepAlives:     true,
-		ResponseHeaderTimeout: 30 * time.Second,
+		ResponseHeaderTimeout: 60 * time.Second,
 		DialContext: func(ctx context.Context, network, addr string) (i net.Conn, e error) {
 			addr, _ = proxy.dns.CustomDialer(addr)
 			return dialer.DialContext(ctx, network, addr)
@@ -194,7 +182,6 @@ func (proxy *Proxy) Error(net net.Conn, error error) {
 	proxy.delegate.ErrorLog(error)
 	_, _ = net.Write(internalServerErr)
 	if error != nil {
-		fmt.Printf("%+v", errors.WithStack(error))
 		_, _ = net.Write([]byte(error.Error()))
 	}
 }
